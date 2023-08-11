@@ -5,67 +5,26 @@
 #include "./includes/csv-parser.hpp"
 
 using namespace std;
-using namespace rapidcsv;
 
 const int M = 8000;
 
 int main() {
 
-    Document doc("data/INF01124_FIFA21_clean/players.csv");
+    HashTable<PlayerNode> hash_players(M);
 
-    vector<int> ids = doc.GetColumn<int>("sofifa_id");
-    vector<string> names = doc.GetColumn<string>("name");
-    vector<string> positions = doc.GetColumn<string>("player_positions");
-
-    vector<Player> players;
-
-    for(int i = 0; i < ids.size(); i++) {
-        Player input;
-        input.id = ids[i];
-        input.data.name = names[i];
-        input.data.positions = positions[i];
-        players.push_back(input);
+    PlayerNode inp_player;
+    while(cin >> inp_player.id.value >> inp_player.name >> inp_player.n_reviews >> inp_player.sum_reviews_x2 && inp_player.id.value != -1) {
+        hash_players.insert(inp_player);
     }
 
-    HashTable table;
-    InitializeHashTable(table, M);
+    cout << "Number of lists: " << hash_players.size() << endl;
 
-    for(Player inputPlayer : players) {
-        Insert(inputPlayer, table);
-    }
-
-    cout << "PARTE1: ESTATISTICAS DA TABELA HASH\n";
-
-    HashStats hstats = CalculateHashStats(table);
-    cout << "NUMERO DE ENTRADAS DA TABELA USADAS " << hstats.n_lists_used << endl;
-    cout << "NUMERO DE ENTRADAS DA TABELA VAZIAS " << M-hstats.n_lists_used << endl;
-    cout << "TAXA DE OCUPACAO " << (float)hstats.n_lists_used / M << endl;
-    cout << "MINIMO TAMANHO DE LISTA " << hstats.min_size << endl;
-    cout << "MAXIMO TAMANHO DE LISTA " << hstats.max_size << endl;
-    cout << "MEDIO TAMANHO DE LISTA " << hstats.avg_size << "\n\n";
-
-    cout << "PARTE2: ESTATISTICAS DAS CONSULTAS\n";
-
-    int id, min_tests = MAX_ELEMENTS_PER_LIST, max_tests = 0;
-    int acc = 0, n_searches = 0, acc_found = 0, n_searches_found = 0;
-
-    while(!cin.eof() && cin >> id) {
-        SearchStats sstats = SearchPlayer(id, table);
-        cout << id << " " << sstats.name << " " << sstats.n_tests << endl;
-        acc += sstats.n_tests;
-        n_searches++;
-        if(sstats.found) {
-            min_tests = min(min_tests, sstats.n_tests);
-            max_tests = max(max_tests, sstats.n_tests);
-            acc_found += sstats.n_tests;
-            n_searches_found++;
+    for(vector<PlayerNode> list : hash_players) {
+        for(PlayerNode node : list) {
+            cout << "(" << node.id.value << ", " << node.name << ", " << node.n_reviews << ", " << node.sum_reviews_x2 << ") ";
         }
+        if(list.size() > 0) cout << endl;
     }
-
-    cout << "MINIMO NUMERO DE TESTES POR NOME ENCONTRADO " << min_tests << endl;
-    cout << "MAXIMO NUMERO DE TESTES POR NOME ENCONTRADO " << max_tests << endl;
-    cout << "MEDIA NUMERO DE TESTES NOME ENCONTRADO " << (float)acc_found/n_searches_found << endl;
-    cout << "MEDIA " << (float)acc/n_searches;
 
     return 0;
 
