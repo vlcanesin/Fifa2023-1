@@ -1,0 +1,7 @@
+1 abc 1 1
+2 abcd 1 2
+3 abcde 1 3
+4 abcdef 1 4
+4 abcdef 1 5
+5 abcdefg 1 6 
+-1 parei 0 0

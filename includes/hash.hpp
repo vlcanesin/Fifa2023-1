@@ -9,172 +9,168 @@ using namespace std;
 
 // Forward declarations
 
-class IdClass;
-class IntId;
-class StringId;
-class NodeClass;
-class Player;
+//class HashContent;
+//class HashNode;
+//class HashMap;
+//class Player;
 
-// CLASSES USED FOR HASH ID TYPES (int or string)
+// HASH: has the hash function implementation, which uses
+// the bytes of the key in order to calculate the hashed id.
 
-class IdClass {
-public:
-    virtual ~IdClass() {}
-    virtual bool compareIdWith(IdClass &id) {}
-    virtual int hash(int M) = 0;
-};
-
-class IntId : public IdClass {
-public:
-    int value;
-
-    IndId() {}
-    IntId(int initialId) : value(initialId) {}
-
-    bool compareIdWith(IdClass &id) override {
-        return value == static_cast<IntId&>(id).value;
-    }
-
-    int hash(int M) override {
-        return value%M;
-    }
-};
-
-class StringId : public IdClass {
-public:
-    string value;
-
-    StringId() {}
-    StringId(string initialId) : value(initialId) {}
-
-    bool compareIdWith(IdClass &id) override {
-        return value == static_cast<StringId&>(id).value;
-    }
-
-    int hash(int M) override {
-        int ans, p = 257;
-        for(char c : value) {
-            ans = (ans + int(c)*p) % M;
-            p = (p*257) % M;
+template<typename K>
+struct Hash {
+    size_t operator()(K& key, size_t table_size) {
+        size_t hash_value = 0, p = 257;
+        char* key_bytes = reinterpret_cast<char*>(&key);    
+        // key_bytes is a char pointer that is used to access the bytes of "key"
+        for(size_t i = 0; i < sizeof(key_bytes); i++) {
+            hash_value = (hash_value + size_t(key_bytes[i])*p) % table_size;
+            p = (p*257) % table_size;
         }
-        return ans;
+        return hash_value;
     }
 };
 
-// CLASSES USED FOR NODE TYPES (int, heap and the HashTable itself)
-
-class NodeClass {
-public: 
-    virtual ~NodeClass() {}
-    virtual void update(NodeClass &element) {}
+template<typename K, typename V>
+struct HashNode {
+    K key;
+    V value;
+    HashNode() : key(K()), value(V()) {}
+    HashNode(K& k, V& v) : key(k), value(v) {}
 };
 
-class IntNode : public NodeClass {
+class Player {
 public:
-    IntId id;
-
-    IntNode() : id(0) {}
-    IntNode(int initialId) : id(initialId) {}
-};
-
-class PlayerNode : public NodeClass {
-public:
-    IntId id;
     string name;
-    unsigned long long n_reviews;
-    unsigned long long sum_reviews_x2;
+    size_t n_reviews;
+    size_t sum_reviews_x2;
 
-    PlayerNode() : id(0), name(""), n_reviews(0), sum_reviews_x2(0) {}
-
-    PlayerNode(int id_, string name_) : id(id_), name(name_), n_reviews(0), sum_reviews_x2(0) {}
-
-    PlayerNode(int id_, string name_, unsigned long long n_reviews_, unsigned long long sum_reviews_x2_)
-        : id(id_), name(name_), n_reviews(n_reviews_), sum_reviews_x2(sum_reviews_x2_) {}
+    Player() : name(""), n_reviews(0), sum_reviews_x2(0) {}
+    Player(string name_, size_t n_reviews_, size_t sum_reviews_x2_)
+        : name(name_), n_reviews(n_reviews_), sum_reviews_x2(sum_reviews_x2_) {}
 
     // This function is called when the element to insert is already in the hash table.
     // It only updates n_reviews and sum_reviews_x2
-    void update(NodeClass &element) override {
-        PlayerNode castedPlayer = dynamic_cast<PlayerNode&>(element);
-        n_reviews += castedPlayer.n_reviews;
-        sum_reviews_x2 += castedPlayer.sum_reviews_x2;
+    void update(Player &incoming_player) {
+        n_reviews += incoming_player.n_reviews;
+        sum_reviews_x2 += incoming_player.sum_reviews_x2;
     }
 
 };
 
-template <class NodeType>
-class HashTable : private vector<vector<NodeType>>, public NodeClass {
+template <typename K, typename V>
+class HashMap {
 private:
-    typedef vector<vector<NodeType>> base_vector;
-    int M;
+    vector<vector<HashNode<K, V>>> table;
+    Hash<K> hasher;
+    size_t table_size;
 
 public:
-    StringId id;      // used for the hash of 'tags'
-    IntNode content;    // used for inserting one element - PROVISÓRIO
+    HashMap() : table_size(1000), table(1000, vector<HashNode<K, V>>()) {}
+    HashMap(size_t initial_size) : table_size(initial_size), table(initial_size, vector<HashNode<K, V>>()) {}
 
-    typedef typename base_vector::size_type       size_type;
-    typedef typename base_vector::iterator        iterator;
-    typedef typename base_vector::const_iterator  const_iterator;
+    class Iterator {
+    private:
+        typename vector<vector<HashNode<K, V>>>::iterator outer_iter;
+        typename vector<HashNode<K, V>>::iterator inner_iter;
+        HashMap<K, V>& hash_map; // ***Reference*** to the hash map instance
+    
+    public:
+        Iterator(const typename vector<vector<HashNode<K, V>>>::iterator outer, 
+                 const typename vector<HashNode<K, V>>::iterator inner,
+                 HashMap<K, V>& hm)
+            : outer_iter(outer), inner_iter(inner), hash_map(hm) {}
 
-    using base_vector::operator[];
-    using base_vector::begin;
-    using base_vector::clear;
-    using base_vector::end;
-    using base_vector::erase;
-    using base_vector::push_back;
-    using base_vector::reserve;
-    using base_vector::resize;
-    using base_vector::size;
+        bool operator==(const Iterator& comp_it) const {
+            return (outer_iter == comp_it.outer_iter) && (inner_iter == comp_it.inner_iter);
+        }
+        bool operator!=(const Iterator& comp_it) const {
+            return !(*this == comp_it);
+        }
+        Iterator& operator++() {
+            inner_iter++;
+            // If inner_iter got to the end of the hash list
+            while (outer_iter != hash_map.table.end() && inner_iter == outer_iter->end()) {
+                // Keeps searching for the next non-empty hash list
+                outer_iter++;
+                if(outer_iter != hash_map.table.end()) {
+                    inner_iter = outer_iter->begin();
+                }
+            }
+            if(outer_iter != hash_map.table.end()) return *this;
+            else {
+                inner_iter = typename vector<HashNode<K, V>>::iterator();   // the same way as in the .end() function
+                return *this;
+            }
+        }
+        HashNode<K, V>& operator*() {
+            return *inner_iter;
+        }
+    };
 
-    HashTable() {
-        M = 10000;
-        this->assign(M, vector<NodeType>());
+    // ------------------------------ ITERATOR METHODS:
+    Iterator begin() {
+        typename vector<vector<HashNode<K, V>>>::iterator outer = table.begin();
+        // Begins the search at the first element
+        while(outer != table.end() && outer->empty()) {
+            // If the current hash list is empty, goes to the next
+            ++outer;
+        }
+        if(outer == table.end()) return end();
+        else return Iterator(outer, outer->begin(), *this);
     }
-    HashTable(int initialM) {
-        M = initialM;
-        this->assign(M, vector<NodeType>());
+    Iterator end() {
+        return Iterator(table.end(), typename vector<HashNode<K, V>>::iterator(), *this);
     }
-    HashTable(int initialM, StringId initialId) {   // Used when the HashTable is itself a node
-        M = initialM;
-        id.value = initialId.value;
-        this->assign(M, vector<NodeType>());
+    // Experimental: returns the iterator pointing to the last empty bucket 
+    // (from .end() to .beg()). This would prevent the searches to happen
+    // in empty buckets that come after the bucket returned by this function.
+    Iterator fast_end() {
+        typename vector<vector<HashNode<K, V>>>::iterator outer = table.end()-1;
+        // Begins the search at the last element
+        do {
+            // If the current hash list is empty, goes to the one prior
+            if(outer->empty()) {
+                if(outer != table.begin()) {
+                    --outer;
+                }
+            } else break;
+        } while(outer != table.begin());
+        // Note: the .end() iter points to the first element thats out of
+        // the scope of the container
+        if(outer != table.begin() || !outer->empty()) ++outer;
+        if(outer == table.end()) return Iterator(outer, typename vector<HashNode<K, V>>::iterator(), *this);
+        else return Iterator(outer, outer->begin(), *this);
+    }
+    bool empty() {
+        return this->begin() == this->end();
     }
 
     // Inserts a node in the hash table.
     // If it is already present, then the update function of the node object
     // is called in order to update its content accordingly
-    void insert(NodeType &node) {
-        int hashed_id = node.id.hash(M);
-        bool already = false;
-        for(auto TableNodeIt = (*this)[hashed_id].begin(); TableNodeIt != (*this)[hashed_id].end(); TableNodeIt++) {
-            if(TableNodeIt->id.value == node.id.value) {
-                TableNodeIt->update(node);
-                already = true;
-                break;
+    void insert(HashNode<K, V> &node) {
+        size_t hashed_id = hasher(node.key, table_size);
+        for(HashNode<K, V> &curr_node : table[hashed_id]) {
+            if(node.key == curr_node.key) {
+                curr_node.value.update(node.value);
+                return;
             }
         }
-        if(!already) {
-            (*this)[hashed_id].push_back(node);
-        }
-    }
-    
-    // This function is called when the element to insert is already in the hash table.
-    // It inserts the element in the already existing hashTable
-    void update(NodeClass &element) override {
-        insert(dynamic_cast<NodeType&>(element).content);  // PROVISÓRIO
+        table[hashed_id].push_back(node);
     }
 
-    // This function returns a pointer to a node of the HashTable given its id
-    // If the node is not present, then it returns NULL
-    NodeClass* find(IdClass &id_to_find) {
-        int hashed_id = id_to_find.hash(M);
-        NodeClass* ans = NULL;
-        for(auto TableNodeIt = (*this)[hashed_id].begin(); TableNodeIt != (*this)[hashed_id].end(); TableNodeIt++) {
-            if(id_to_find.compareIdWith(TableNodeIt->id)) {
-                ans = TableNodeIt;
-                break;
+    // This function returns a reference to a node of the HashTable given its id
+    // If the node is not present, then an empty element of type V is inserted in the table
+    HashMap<K, V>& get(K &key_to_find) {
+        size_t hashed_id = hasher(key_to_find, table_size);
+        for(HashNode<K, V> &curr_node : table[hashed_id]) {
+            if(key_to_find == curr_node.key) {
+                return curr_node.value;
             }
         }
-        return ans;
+        table[hashed_id].push_back(HashNode<K, V>(key_to_find, V()));
+        return table[hashed_id].back().value;
     }
 
 };
