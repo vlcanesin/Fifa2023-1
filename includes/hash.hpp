@@ -124,7 +124,7 @@ public:
     }
     // Experimental: returns the iterator pointing to the last empty bucket 
     // (from .end() to .beg()). This would prevent the searches to happen
-    // in empty buckets that come after the bucket returned by this function.
+    // in empty buckets that come after the last non-empty bucket.
     Iterator fast_end() {
         typename vector<vector<HashNode<K, V>>>::iterator outer = table.end()-1;
         // Begins the search at the last element
