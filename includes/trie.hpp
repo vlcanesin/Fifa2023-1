@@ -1,6 +1,5 @@
 #ifndef tst_lib
 #define tst_lib
-#endif
 
 
 #include <iostream>
@@ -10,13 +9,6 @@
 
 using namespace std;
 
-// Forward declarations
-
-class Tst;
-class TstNode;
-
-// CLASSES USED FOR TST (PLAYER NAMES)
-
 
 class TstNode {
     public:
@@ -24,10 +16,9 @@ class TstNode {
         TstNode *leftNode;
         TstNode *nextNode;
         char letter;
-        int idPlayer;
+        vector<int> idPlayer;
 
-        TstNode(char letterToInsert) : rightNode(nullptr), leftNode(nullptr), nextNode(nullptr), letter(letterToInsert), idPlayer(0) {
-        }
+        TstNode(char letterToInsert) : rightNode(nullptr), leftNode(nullptr), nextNode(nullptr), letter(letterToInsert), idPlayer() {}
 };
 
 
@@ -35,46 +26,28 @@ class Tst{
     private:
         TstNode *root;
 
-        void insertLetter(TstNode **node, string name, int indexOfLetter, int idPlayer){
-            if(*node == nullptr){    // Se o nodo ainda nao foi criado, o caractere deve ser inserido no novo nodo
-                *node = new TstNode(name[indexOfLetter]);
-                if(name.size() == indexOfLetter + 1) // Se o caractere for de fim de string, pode-se finalizar a insercao e salva-se o id
-                    (*node)->idPlayer = idPlayer;
+        void insertLetter(TstNode *&node, string name, int indexOfLetter, int idPlayerInsert){
 
+            if(node == nullptr){    // Insert new letter
+                node = new TstNode(name[indexOfLetter]);
+                if(name.size() == indexOfLetter + 1)
+                    node->idPlayer.push_back(idPlayerInsert);
                 else
-                    insertLetter(&(*node)->nextNode, name, indexOfLetter + 1, idPlayer);
+                    insertLetter(node->nextNode, name, indexOfLetter + 1, idPlayerInsert);
             }
+            //Sideways Movement TST
+            else if( node->letter < name[indexOfLetter])
+                insertLetter(node->rightNode, name, indexOfLetter, idPlayerInsert);
+            else if(node->letter > name[indexOfLetter])
+                insertLetter(node->leftNode, name, indexOfLetter, idPlayerInsert);
 
-            else if( (*node)->letter < name[indexOfLetter]){ // Se o caractere que vai ser inserido for maior que o do nodo, deve-se olhar o caractere da direita
-                insertLetter(&(*node)->rightNode, name, indexOfLetter, idPlayer);
-            }
-
-            else if((*node)->letter > name[indexOfLetter]){    // Se o caractere que vai ser inserido for menor que o do nodo, deve-se olhar o caractere da direita
-                insertLetter(&(*node)->leftNode, name, indexOfLetter, idPlayer);
-            }
-
-            else{   // Se for igual, segue-se para o pr�ximo caractere sem precisar inserir
-                if(name.size() == indexOfLetter + 1){ // Se alguem tiver um nome contido, insere-se da mesma maneira
-                    (*node)->idPlayer = idPlayer;
-                }
+            else{   // Search for next letter
+                // Add player
+                if(name.size() == indexOfLetter + 1)
+                    node->idPlayer.push_back(idPlayerInsert);
                 else
-                    insertLetter(&(*node)->nextNode, name, indexOfLetter + 1, idPlayer);
+                    insertLetter(node->nextNode, name, indexOfLetter + 1, idPlayerInsert);
             }
-        }
-
-        TstNode* getNodeName(string name){
-            std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-            return  getLastLetterNode(root , name, 0, name.size());
-        }
-
-        vector<int> getIdsPlayers(TstNode *node,string name){
-
-            vector<int> idReturn;
-
-            std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-            getIdsPlayersRecursion(node, name, &idReturn);
-
-            return idReturn;
         }
 
         TstNode* getLastLetterNode(TstNode *node, string name, int indexOfLetter, int sizeName){
@@ -88,10 +61,16 @@ class Tst{
             else if (node->leftNode != nullptr)
                node = getLastLetterNode(node->leftNode, name, indexOfLetter, sizeName);
 
-            else if(indexOfLetter + 1 != sizeName) // Se a string nao tiver acabado mas nao houver nenhum nodo, nada foi encontrado
+            else if(indexOfLetter + 1 != sizeName)
                 node = nullptr;
 
             return node;
+        }
+
+        vector<int> getIdsPlayers(TstNode *node,string name){
+            vector<int> idReturn;
+            getIdsPlayersRecursion(node, name, &idReturn);
+            return idReturn;
         }
 
         void getIdsPlayersRecursion(TstNode *node, string name, vector<int>* idReturn){
@@ -101,25 +80,36 @@ class Tst{
                 getIdsPlayersRecursion(node->leftNode, name, idReturn);
             if(node->nextNode != nullptr)
                 getIdsPlayersRecursion(node->nextNode, name + node->letter, idReturn);
-            if(node->idPlayer != 0)
-                idReturn->push_back(node->idPlayer);
+
+            if(!node->idPlayer.empty()){
+                idReturn->insert(idReturn->end(), node->idPlayer.begin(), node->idPlayer.end());
+            }
         }
 
     public:
         void insertName(string name, int idPlayer){
             std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-            insertLetter(&root,name, 0, idPlayer);
+            insertLetter(root,name, 0, idPlayer);
         }
 
         vector<int> searchPrefix(string name){
-
-            TstNode * node = getNodeName(name);
+            TstNode* node;
             vector<int> idReturn;
-            if(node != nullptr){
-                idReturn = getIdsPlayers(node->nextNode, name);
-                if(node->idPlayer != 0)
-                    idReturn.push_back(node->idPlayer);
+
+            std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+            node = getLastLetterNode(root , name, 0, name.size());
+            if(node == nullptr)
+                return idReturn;
+
+            else{
+                if(node->nextNode != nullptr)
+                    idReturn = getIdsPlayers(node->nextNode, name);
+
+                if(!node->idPlayer.empty())
+                    idReturn.insert(idReturn.end(), node->idPlayer.begin(), node->idPlayer.end());
             }
+
             return idReturn;
         }
 
@@ -127,3 +117,4 @@ class Tst{
 
 };
 
+#endif
