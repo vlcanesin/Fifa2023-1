@@ -4,6 +4,8 @@
 #include <iostream>
 #include <vector>
 
+#define UNLIMITEDSIZE -1
+
 using namespace std;
 
 typedef struct review_struct{
@@ -11,15 +13,20 @@ typedef struct review_struct{
     float review;
 }Review;
 
-class HeapMinLimitedSize{
+class HeapMin{
     public:
         // Insert element to keep Heap properties within the range of maxSize
         // If necessary, removes the minimun element
         void push(Review data){
             int i;
-            if(ranking.size() == maxSize && ranking[0].review < data.review){
+            if(maxSize == UNLIMITEDSIZE){
+                ranking.push_back(data);
+                heapUp();
+            }
+
+            else if(ranking.size() == maxSize && ranking[0].review < data.review){
                     ranking[0] = data;
-                    heapDown(0);       
+                    heapDown(0);
             }
             else if(ranking.size() < maxSize){
                 ranking.push_back(data);
@@ -45,7 +52,12 @@ class HeapMinLimitedSize{
             }
         }
 
-        HeapMinLimitedSize(int maxSize): ranking(), maxSize(maxSize){}
+        int empty(){
+            return ranking.empty();
+        }
+
+        HeapMin(int maxSize): ranking(), maxSize(maxSize){}
+        HeapMin(): ranking(), maxSize(UNLIMITEDSIZE) {}
 
     private:
 
@@ -62,7 +74,7 @@ class HeapMinLimitedSize{
         }
 
         int parent(int son){
-            return son / 2 - 1;
+            return son / 2.0 - 1;
         }
         // Heapify all parents nodes
         void heapUp(){
@@ -74,7 +86,7 @@ class HeapMinLimitedSize{
             }
         }
 
-        // Heapify the child nodes 
+        // Heapify the child nodes
         void heapDown(int i){
             int indexleftChild = leftChild(i);
             int indexrightChild = rightChild(i);
