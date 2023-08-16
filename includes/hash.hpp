@@ -146,23 +146,9 @@ public:
         return this->begin() == this->end();
     }
 
-    // Inserts a node in the hash table.
-    // If it is already present, then the update function of the node object
-    // is called in order to update its content accordingly
-    void insert(HashNode<K, V> &node) {
-        size_t hashed_id = hasher(node.key, table_size);
-        for(HashNode<K, V> &curr_node : table[hashed_id]) {
-            if(node.key == curr_node.key) {
-                curr_node.value.update(node.value);
-                return;
-            }
-        }
-        table[hashed_id].push_back(node);
-    }
-
     // This function returns a reference to a node of the HashTable given its id
     // If the node is not present, then an empty element of type V is inserted in the table
-    HashMap<K, V>& get(K &key_to_find) {
+    V& get(K &key_to_find) {
         size_t hashed_id = hasher(key_to_find, table_size);
         for(HashNode<K, V> &curr_node : table[hashed_id]) {
             if(key_to_find == curr_node.key) {
