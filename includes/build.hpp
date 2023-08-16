@@ -15,7 +15,7 @@ void build_hash_players(HashMap<int, Player> &hash_players) {
     // Implementação - Víctor
 }
 
-void build_hash_users(HashMap<int, HeapMinLimitedSize> &hash_users) {
+void build_hash_users(HashMap<int, HeapMin> &hash_users) {
     // Implementação - Guillermo
 }
 

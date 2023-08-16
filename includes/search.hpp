@@ -12,7 +12,7 @@ void search_player(string player, Tst &tst_players, HashMap<int, Player> &hash_p
     cout << player << endl;
 }
 
-void search_user(int user_id, HashMap<int, HeapMinLimitedSize> &hash_users, HashMap<int, Player> hash_players) {
+void search_user(int user_id, HashMap<int, HeapMin> &hash_users, HashMap<int, Player> hash_players) {
     // Implementação - Guillermo
     cout << user_id << endl;
 }
