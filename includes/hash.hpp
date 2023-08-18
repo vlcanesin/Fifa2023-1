@@ -31,12 +31,33 @@ struct Hash {
     }
 };
 
+/*
+// Template specialization for string
+template<>
+struct Hash<std::string> {
+    size_t operator()(const std::string& key, size_t table_size) {
+        size_t hash_value = 0;
+        for (char c : key) {
+            hash_value = (hash_value * 31) + static_cast<size_t>(c);
+        }
+        return hash_value % table_size;
+    }
+};
+
+// Template specialization for int
+template<>
+struct Hash<int> {
+    size_t operator()(int key, size_t table_size) {
+        return static_cast<size_t>(key) % table_size;
+    }
+};*/
+
 template<typename K, typename V>
 struct HashNode {
     K key;
     V value;
     HashNode() : key(K()), value(V()) {}
-    HashNode(K& k, V& v) : key(k), value(v) {}
+    HashNode(const K& k, const V& v) : key(k), value(v) {}
 };
 
 class Player {
@@ -64,10 +85,11 @@ private:
     vector<vector<HashNode<K, V>>> table;
     Hash<K> hasher;
     size_t table_size;
+    size_t n_elements;
 
 public:
-    HashMap() : table_size(1000), table(1000, vector<HashNode<K, V>>()) {}
-    HashMap(size_t initial_size) : table_size(initial_size), table(initial_size, vector<HashNode<K, V>>()) {}
+    HashMap() : table_size(100), table(100, vector<HashNode<K, V>>()), n_elements(0) {}  // default: hash for the tags
+    HashMap(size_t initial_size) : table_size(initial_size), table(initial_size, vector<HashNode<K, V>>()), n_elements(0) {}
 
     class Iterator {
     private:
@@ -146,6 +168,10 @@ public:
         return this->begin() == this->end();
     }
 
+    size_t size() {
+        return n_elements;
+    }
+
     // This function returns a reference to a node of the HashTable given its id
     // If the node is not present, then an empty element of type V is inserted in the table
     V& get(K &key_to_find) {
@@ -156,6 +182,7 @@ public:
             }
         }
         table[hashed_id].push_back(HashNode<K, V>(key_to_find, V()));
+        n_elements++;
         return table[hashed_id].back().value;
     }
 

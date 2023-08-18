@@ -16,20 +16,40 @@ string strip(string s_to_strip);    // "python like" .strip() function
 
 int main() {
 
+    setlocale(LC_ALL, "en_US.UTF-8");
+
     // CONSTRUINDO AS ESTRUTURAS NECESSÁRIAS:
     // Colocar aqui todas as estruturas que devem ser geradas no início
 
-    Tst tst_players;                                // TST com o nome dos jogadores
-    HashMap<int, Player> hash_players;              // HashMap id_jogador -> jogadores 
-    HashMap<int, HeapMin> hash_users;    // HashMap id_usuário -> 20 melhores jogadores
-    vector<Review> top_players;                     // vector ordenado de jogadores de +1000 reviews
-    HashMap<string, HashMap<int, int>> hash_tags;   // HashMap tag -> (HashMap id_jogador -> id_jogador)
+    Tst tst_players;                                     // TST com o nome dos jogadores
+    HashMap<int, Player> hash_players(10000);            // HashMap id_jogador -> jogadores 
+    HashMap<int, HeapMin> hash_users;                    // HashMap id_usuário -> 20 melhores jogadores
+    vector<Review> top_players;                          // vector ordenado de jogadores de +1000 reviews
+    HashMap<string, HashMap<int, int>> hash_tags(1000);  // HashMap tag -> (HashMap id_jogador -> id_jogador)
 
     build_tst_players(tst_players);
     build_hash_players(hash_players);
     build_hash_users(hash_users);
     build_top_players(top_players);
     build_hash_tags(hash_tags);
+
+    cout << "Build phase: done!\n";
+
+    int cont = 0;
+    cout << "First 10 tags with less than 20 elements:\n";
+    for(auto it = hash_tags.begin(); it != hash_tags.end(); ++it) {
+        if((*it).value.size() >= 20) continue;
+        cout << "Tag: " << (*it).key << ", n_elements: " << (*it).value.size() << endl;
+        for(auto innerit = (*it).value.begin(); innerit != (*it).value.end(); ++innerit) {
+            Player curr_player = hash_players.get((*innerit).key);
+            cout << "(key: " << (*it).key;
+            cout << ", content: {" << curr_player.name
+                           << ", " << curr_player.n_reviews 
+                           << ", " << curr_player.sum_reviews_x2 << "})\n";
+        }
+        cout << endl;
+        if(++cont >= 10) break;
+    }
 
     // FAZENDO AS CONSULTAS NECESSÁRIAS:
 
@@ -79,7 +99,7 @@ int main() {
 
             search_tags(tags, hash_tags, hash_players);
 
-        } else if(query_type == "stop") {
+        } else if(query_type == "stop" || query_type == "exit" || query_type == "done") {
             make_query = false;
         } else {
             cout << "Invalid query!\n\n";
