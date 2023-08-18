@@ -29,13 +29,26 @@ void build_hash_players(HashMap<int, Player> &hash_players) {
         player_pointer->sum_reviews_x2 += (int)(2*rating);
     }
 
-    io::CSVReader<2, io::trim_chars<' ', '\t'>, io::double_quote_escape<',', '"'>> doc_players("./../INF01124_FIFA21_clean/players.csv");
+    io::CSVReader<3, io::trim_chars<' ', '\t'>, io::double_quote_escape<',', '"'>> doc_players("./../INF01124_FIFA21_clean/players.csv");
 
-    doc_players.read_header(io::ignore_extra_column, "sofifa_id", "name");
+    doc_players.read_header(io::ignore_extra_column, "sofifa_id", "name", "player_positions");
 
     string name;
-    while(doc_players.read_row(id, name)){
-        hash_players.get(id).name = name;
+    string s_positions;
+    while(doc_players.read_row(id, name, s_positions)){
+        Player *player_pointer = &hash_players.get(id);
+        (*player_pointer).name = name;
+        s_positions += ", "; // delimiter
+        string position_to_insert = "";
+        for(int i = 0; i < s_positions.length()-1; i++) {
+            if(s_positions[i] == ',' && s_positions[i+1] == ' ') {
+                (*player_pointer).positions.push_back(position_to_insert);
+                position_to_insert = "";
+                i += 1; // skips ", "
+            } else {
+                position_to_insert += s_positions[i];
+            }
+        }
     }
 
 }

@@ -65,10 +65,11 @@ public:
     string name;
     size_t n_reviews;
     size_t sum_reviews_x2;
+    vector<string> positions;
 
-    Player() : name(""), n_reviews(0), sum_reviews_x2(0) {}
-    Player(string name_, size_t n_reviews_, size_t sum_reviews_x2_)
-        : name(name_), n_reviews(n_reviews_), sum_reviews_x2(sum_reviews_x2_) {}
+    Player() : name(""), n_reviews(0), sum_reviews_x2(0), positions(vector<string>()) {}
+    Player(string name_, size_t n_reviews_, size_t sum_reviews_x2_, vector<string> positions_)
+        : name(name_), n_reviews(n_reviews_), sum_reviews_x2(sum_reviews_x2_), positions(positions_) {}
 
     // This function is called when the element to insert is already in the hash table.
     // It only updates n_reviews and sum_reviews_x2

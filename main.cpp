@@ -45,7 +45,11 @@ int main() {
             cout << "(key: " << (*it).key;
             cout << ", content: {" << curr_player.name
                            << ", " << curr_player.n_reviews 
-                           << ", " << curr_player.sum_reviews_x2 << "})\n";
+                           << ", " << curr_player.sum_reviews_x2;
+            for(string pos : curr_player.positions) {
+                cout << ", " << pos;
+            }
+            cout << "})\n";
         }
         cout << endl;
         if(++cont >= 10) break;
