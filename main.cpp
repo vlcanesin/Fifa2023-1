@@ -22,7 +22,7 @@ int main() {
     // Colocar aqui todas as estruturas que devem ser geradas no início
 
     Tst tst_players;                                     // TST com o nome dos jogadores
-    HashMap<int, Player> hash_players(10000);            // HashMap id_jogador -> jogadores 
+    HashMap<int, Player> hash_players(10000);            // HashMap id_jogador -> jogadores
     HashMap<int, HeapMin> hash_users;                    // HashMap id_usuário -> 20 melhores jogadores
     vector<Review> top_players;                          // vector ordenado de jogadores de +1000 reviews
     HashMap<string, HashMap<int, int>> hash_tags(1000);  // HashMap tag -> (HashMap id_jogador -> id_jogador)
@@ -30,7 +30,7 @@ int main() {
     build_tst_players(tst_players);
     build_hash_players(hash_players);
     build_hash_users(hash_users);
-    build_top_players(top_players);
+    build_top_players(top_players, hash_players);
     build_hash_tags(hash_tags);
 
     cout << "Build phase done!\n";
@@ -72,7 +72,7 @@ int main() {
             search_top_n(n_players, position, top_players, hash_players);
 
         } else if(query_type == "tags") {
-            
+
             vector<string> tags;
             string all_tags;
             getline(cin, all_tags);
@@ -113,8 +113,8 @@ string strip(string s_to_strip) {
 
     if(beg == string::npos || end == string::npos) {
         // string::npos indica "não encontrado"
-        return "";   
+        return "";
     }
-    
+
     return s_to_strip.substr(beg, end-beg + 1);
 }

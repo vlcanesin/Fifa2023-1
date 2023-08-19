@@ -54,15 +54,36 @@ void build_hash_players(HashMap<int, Player> &hash_players) {
 }
 
 void build_hash_users(HashMap<int, HeapMin> &hash_users) {
-    // Implementação - Guillermo
+
 }
 
-void build_top_players(vector<Review> &top_players) {
-    // Implementação - Guillermo
+void build_top_players(vector<Review> &top_players, HashMap<int, Player> &hash_players ) {
+
+    HeapMin player_1000_review;
+    int i;
+    Review insert_review;
+
+    for(auto player_review = hash_players.begin(); player_review != hash_players.end(); ++player_review){
+        if((*player_review).value.n_reviews >= 1000){
+             //Inserting negative values for higher evaluations being before in heap
+            insert_review.id  =(*player_review).key;
+            insert_review.review = - ((*player_review).value.sum_reviews_x2 / (2 * float((*player_review).value.n_reviews)));
+            player_1000_review.push(insert_review);
+        }
+    }
+
+    // Copying ordered heap to vector
+    top_players.resize(player_1000_review.size());
+    for(i = 0; !player_1000_review.empty(); i++){
+        insert_review = player_1000_review.pop();
+        top_players[i].id = insert_review.id;
+        top_players[i].review = -insert_review.review;
+    }
+
 }
 
 void build_hash_tags(HashMap<string, HashMap<int, int>> &hash_tags) {
-    
+
     io::CSVReader<2, io::trim_chars<' ', '\t'>, io::double_quote_escape<',', '"'>> doc_tags("./../INF01124_FIFA21_clean/tags.csv");
 
     doc_tags.read_header(io::ignore_extra_column, "sofifa_id", "tag");
