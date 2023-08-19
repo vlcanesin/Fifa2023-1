@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <functional>
 
 using namespace std;
 
@@ -19,26 +20,17 @@ using namespace std;
 
 template<typename K>
 struct Hash {
-    size_t operator()(K& key, size_t table_size) {
-        size_t hash_value = 0, p = 257;
-        char* key_bytes = reinterpret_cast<char*>(&key);    
-        // key_bytes is a char pointer that is used to access the bytes of "key"
-        for(size_t i = 0; i < sizeof(key_bytes); i++) {
-            hash_value = (hash_value + size_t(key_bytes[i])*p) % table_size;
-            p = (p*257) % table_size;
-        }
-        return hash_value;
-    }
+    size_t operator()(K& key, size_t table_size);
 };
 
-/*
 // Template specialization for string
 template<>
-struct Hash<std::string> {
-    size_t operator()(const std::string& key, size_t table_size) {
+struct Hash<string> {
+    size_t operator()(string &key, size_t table_size) {
         size_t hash_value = 0;
         for (char c : key) {
             hash_value = (hash_value * 31) + static_cast<size_t>(c);
+            hash_value = hash_value % table_size;
         }
         return hash_value % table_size;
     }
@@ -50,7 +42,7 @@ struct Hash<int> {
     size_t operator()(int key, size_t table_size) {
         return static_cast<size_t>(key) % table_size;
     }
-};*/
+};
 
 template<typename K, typename V>
 struct HashNode {
@@ -185,6 +177,16 @@ public:
         table[hashed_id].push_back(HashNode<K, V>(key_to_find, V()));
         n_elements++;
         return table[hashed_id].back().value;
+    }
+
+    bool has_key(K &key_to_find) {
+        size_t hashed_id = hasher(key_to_find, table_size);
+        for(HashNode<K, V> &curr_node : table[hashed_id]) {
+            if(key_to_find == curr_node.key) {
+                return true;
+            }
+        }
+        return false;
     }
 
 };

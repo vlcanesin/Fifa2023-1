@@ -33,27 +33,7 @@ int main() {
     build_top_players(top_players);
     build_hash_tags(hash_tags);
 
-    cout << "Build phase: done!\n";
-
-    int cont = 0;
-    cout << "First 10 tags with less than 20 elements:\n";
-    for(auto it = hash_tags.begin(); it != hash_tags.end(); ++it) {
-        if((*it).value.size() >= 20) continue;
-        cout << "Tag: " << (*it).key << ", n_elements: " << (*it).value.size() << endl;
-        for(auto innerit = (*it).value.begin(); innerit != (*it).value.end(); ++innerit) {
-            Player curr_player = hash_players.get((*innerit).key);
-            cout << "(key: " << (*it).key;
-            cout << ", content: {" << curr_player.name
-                           << ", " << curr_player.n_reviews 
-                           << ", " << curr_player.sum_reviews_x2;
-            for(string pos : curr_player.positions) {
-                cout << ", " << pos;
-            }
-            cout << "})\n";
-        }
-        cout << endl;
-        if(++cont >= 10) break;
-    }
+    cout << "Build phase done!\n";
 
     // FAZENDO AS CONSULTAS NECESSÁRIAS:
 
@@ -94,11 +74,22 @@ int main() {
         } else if(query_type == "tags") {
             
             vector<string> tags;
-            string all_tags, tag;
+            string all_tags;
             getline(cin, all_tags);
-            istringstream iss(strip(all_tags));
-            while(iss >> tag) {
-                tags.push_back(tag.substr(1, tag.length()-2));
+            all_tags = strip(all_tags);
+
+            string tag_to_insert = "";
+            bool counting = false;
+            for(int i = 0; i < all_tags.length(); i++) {
+                if((int)all_tags[i] == 39) {
+                    if(counting) {
+                        tags.push_back(tag_to_insert);
+                        tag_to_insert = "";
+                    }
+                    counting = !counting;
+                } else if(counting) {
+                    tag_to_insert += all_tags[i];
+                }
             }
 
             search_tags(tags, hash_tags, hash_players);
@@ -125,5 +116,5 @@ string strip(string s_to_strip) {
         return "";   
     }
     
-    return s_to_strip.substr(beg, beg-end + 1);
+    return s_to_strip.substr(beg, end-beg + 1);
 }
