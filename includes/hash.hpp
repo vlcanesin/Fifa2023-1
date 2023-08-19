@@ -8,16 +8,6 @@
 
 using namespace std;
 
-// Forward declarations
-
-//class HashContent;
-//class HashNode;
-//class HashMap;
-//class Player;
-
-// HASH: has the hash function implementation, which uses
-// the bytes of the key in order to calculate the hashed id.
-
 template<typename K>
 struct Hash {
     size_t operator()(K& key, size_t table_size);
@@ -52,8 +42,7 @@ struct HashNode {
     HashNode(const K& k, const V& v) : key(k), value(v) {}
 };
 
-class Player {
-public:
+struct Player {
     string name;
     size_t n_reviews;
     size_t sum_reviews_x2;
@@ -62,13 +51,6 @@ public:
     Player() : name(""), n_reviews(0), sum_reviews_x2(0), positions(vector<string>()) {}
     Player(string name_, size_t n_reviews_, size_t sum_reviews_x2_, vector<string> positions_)
         : name(name_), n_reviews(n_reviews_), sum_reviews_x2(sum_reviews_x2_), positions(positions_) {}
-
-    // This function is called when the element to insert is already in the hash table.
-    // It only updates n_reviews and sum_reviews_x2
-    void update(Player &incoming_player) {
-        n_reviews += incoming_player.n_reviews;
-        sum_reviews_x2 += incoming_player.sum_reviews_x2;
-    }
 
 };
 
