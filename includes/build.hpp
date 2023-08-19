@@ -54,36 +54,30 @@ void build_hash_players(HashMap<int, Player> &hash_players) {
 }
 
 void build_hash_users(HashMap<int, HeapMin> &hash_users) {
-    // Implementação - Guillermo
+
 }
 
 void build_top_players(vector<Review> &top_players, HashMap<int, Player> &hash_players ) {
 
-    io::CSVReader<3, io::trim_chars<' ', '\t'>, io::double_quote_escape<',', '"'>> doc_players("./../INF01124_FIFA21_clean/players.csv");
-    doc_players.read_header(io::ignore_extra_column, "sofifa_id", "name", "player_positions");
-
-    int id, i;
-    string name, s_positions;
-
     HeapMin player_1000_review;
-    Review player_reviews;
+    int i;
+    Review insert_review;
 
-    while(doc_players.read_row(id,name,s_positions)){
-        Player player = hash_players.get(id);
-        if(player.n_reviews >= 1000){
-            // Inserting negative values for higher evaluations being before in heap
-            player_reviews.id = id;
-            player_reviews.review = - (player.sum_reviews_x2 / (2 * float(player.n_reviews)));
-            player_1000_review.push(player_reviews);
+    for(auto player_review = hash_players.begin(); player_review != hash_players.end(); ++player_review){
+        if((*player_review).value.n_reviews >= 1000){
+             //Inserting negative values for higher evaluations being before in heap
+            insert_review.id  =(*player_review).key;
+            insert_review.review = - ((*player_review).value.sum_reviews_x2 / (2 * float((*player_review).value.n_reviews)));
+            player_1000_review.push(insert_review);
         }
-
     }
+
     // Copying ordered heap to vector
     top_players.resize(player_1000_review.size());
     for(i = 0; !player_1000_review.empty(); i++){
-        player_reviews = player_1000_review.pop();
-        top_players[i].id = player_reviews.id;
-        top_players[i].review = -player_reviews.review;
+        insert_review = player_1000_review.pop();
+        top_players[i].id = insert_review.id;
+        top_players[i].review = -insert_review.review;
     }
 
 }
