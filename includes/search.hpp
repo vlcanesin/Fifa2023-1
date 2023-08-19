@@ -12,7 +12,7 @@ void search_player(string player, Tst &tst_players, HashMap<int, Player> &hash_p
     cout << player << endl;
 }
 
-void search_user(int user_id, HashMap<int, HeapMin> &hash_users, HashMap<int, Player> hash_players) {
+void search_user(int user_id, HashMap<int, HeapMin> &hash_users, HashMap<int, Player> &hash_players) {
     // Implementação - Guillermo
     cout << user_id << endl;
 }
@@ -41,10 +41,6 @@ void search_top_n(int n_players, string position, vector<Review> &top_players, H
 }
 
 void search_tags(vector<string> &tags, HashMap<string, HashMap<int, int>> &hash_tags, HashMap<int, Player> &hash_players) {
-    
-    //for(string tag : tags) cout << tag << " ";
-    //cout << endl;
-    
     int min_size = 1e6;
     string min_tag = "";
     HashMap<int, int> *min_hash = NULL;
