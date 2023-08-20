@@ -7,15 +7,6 @@
 #include "./hash.hpp"
 #include "./heap.hpp"
 
-void search_player(string player, Tst &tst_players, HashMap<int, Player> &hash_players) {
-    // Implementação - Guillermo
-    cout << player << endl;
-}
-
-void search_user(int user_id, HashMap<int, HeapMin> &hash_users, HashMap<int, Player> &hash_players) {
-    // Implementação - Guillermo
-    cout << user_id << endl;
-}
 
 void _print_player(int id, Player p) {
     cout << id << ", " << p.name << ", ";
@@ -23,6 +14,23 @@ void _print_player(int id, Player p) {
         cout << pos << ", ";
     }
     cout << (float)p.sum_reviews_x2/(2*p.n_reviews) << ", " << p.n_reviews << endl;
+}
+
+
+void search_player(string player, Tst &tst_players, HashMap<int, Player> &hash_players) {
+     vector <int>ids = tst_players.searchPrefix(player);
+
+    for(auto& id_player: ids){
+        Player player_with_prefix = hash_players.get(id_player);
+        _print_player(id_player, player_with_prefix);
+    }
+
+}
+
+void search_user(int user_id, HashMap<int, HeapMin> &hash_users, HashMap<int, Player> hash_players) {
+    HeapMin user_top20 = hash_users.get(user_id);
+    cout << user_id << endl;
+    user_top20.print();
 }
 
 void search_top_n(int n_players, string position, vector<Review> &top_players, HashMap<int, Player> &hash_players) {
@@ -56,8 +64,8 @@ void search_tags(vector<string> &tags, HashMap<string, HashMap<int, int>> &hash_
     }
     if(min_hash == NULL) {
         cout << "Empty tag!\n\n";
-        return; 
-    } 
+        return;
+    }
     if((*min_hash).size() == 0) {
         cout << "There's an invalid tag in the query!\n\n";
         return;

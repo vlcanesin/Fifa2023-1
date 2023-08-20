@@ -12,12 +12,20 @@
 using namespace std;
 
 void build_tst_players(Tst &tst_players) {
-    // Implementação - Guillermo
+    io::CSVReader<2, io::trim_chars<' ', '\t'>, io::double_quote_escape<',', '"'>> doc_players("./../INF01124_FIFA21_clean/players.csv");
+
+    doc_players.read_header(io::ignore_extra_column, "sofifa_id", "name");
+    int id;
+    string name;
+
+      while(doc_players.read_row(id, name)){
+        tst_players.insertName(name, id);
+    }
 }
 
 void build_hash_players(HashMap<int, Player> &hash_players) {
 
-    io::CSVReader<2, io::trim_chars<' ', '\t'>, io::double_quote_escape<',', '"'>> doc_reviews("./../INF01124_FIFA21_clean/rating.csv");
+    io::CSVReader<2, io::trim_chars<' ', '\t'>, io::double_quote_escape<',', '"'>> doc_reviews("./../INF01124_FIFA21_clean/minirating.csv");
 
     doc_reviews.read_header(io::ignore_extra_column, "sofifa_id", "rating");
 

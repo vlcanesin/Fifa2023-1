@@ -74,12 +74,13 @@ class Tst{
         }
 
         void getIdsPlayersRecursion(TstNode *node, string name, vector<int>* idReturn){
+            if(node->nextNode != nullptr)
+                getIdsPlayersRecursion(node->nextNode, name + node->letter, idReturn);
             if(node->rightNode != nullptr)
                 getIdsPlayersRecursion(node->rightNode, name, idReturn);
             if(node->leftNode != nullptr)
                 getIdsPlayersRecursion(node->leftNode, name, idReturn);
-            if(node->nextNode != nullptr)
-                getIdsPlayersRecursion(node->nextNode, name + node->letter, idReturn);
+
 
             if(!node->idPlayer.empty()){
                 idReturn->insert(idReturn->end(), node->idPlayer.begin(), node->idPlayer.end());

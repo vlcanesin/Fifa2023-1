@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <vector>
-
 #define UNLIMITEDSIZE -1
 
 using namespace std;
@@ -78,7 +77,7 @@ class HeapMin{
         }
 
         int parent(int son){
-            return son / 2.0 - 1;
+            return (son - 1)/ 2.0;
         }
         // Heapify all parents nodes
         void heapUp(){
