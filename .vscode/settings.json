@@ -19,6 +19,8 @@
         "unordered_map": "cpp",
         "xhash": "cpp",
         "xtree": "cpp",
-        "iomanip": "cpp"
+        "iomanip": "cpp",
+        "istream": "cpp",
+        "limits": "cpp"
     }
 }

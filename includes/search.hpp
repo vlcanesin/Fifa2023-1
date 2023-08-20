@@ -10,15 +10,24 @@
 #include "./heap.hpp"
 
 const char SEP = ' ';
-const int IDW = 6;
+const int IDW = 10;
 const int NAMEW = 46;
-const int POSW = 16;
+const int POSW = 18;
 const int RATW = 10;
 const int CNTW = 8;
-const int USRW = 6;
+const int USRW = 10;
+const int GBRW = 16;
 
 void setWidth(int width) {
     cout << right << setw(width) << setfill(SEP);
+}
+
+void _print_player_header() {
+    setWidth(IDW); cout << "sofifa_id";
+    setWidth(NAMEW); cout << "name";
+    setWidth(POSW); cout << "player_positions";
+    setWidth(RATW); cout << "rating";
+    setWidth(CNTW); cout << "count" << endl;
 }
 
 void _print_player(int id, Player p) {
@@ -32,10 +41,18 @@ void _print_player(int id, Player p) {
     setWidth(CNTW); cout << p.n_reviews << endl;
 }
 
+void _print_user_header() {
+    setWidth(IDW); cout << "sofifa_id";
+    setWidth(NAMEW); cout << "name";
+    setWidth(GBRW); cout << "global_rating";
+    setWidth(CNTW); cout << "count";
+    setWidth(USRW); cout << "rating" << endl;
+}
+
 void _print_user_review(Review user_review, Player p) {
     setWidth(IDW); cout << user_review.id;
     setWidth(NAMEW); cout << p.name;
-    setWidth(RATW); cout << (float)p.sum_reviews_x2/(2*p.n_reviews);
+    setWidth(GBRW); cout << (float)p.sum_reviews_x2/(2*p.n_reviews);
     setWidth(CNTW); cout << p.n_reviews;
     char review_3_digits[4];
     sprintf(review_3_digits, "%.1f", user_review.review);
@@ -45,9 +62,15 @@ void _print_user_review(Review user_review, Player p) {
 
 void search_player(string player, Tst &tst_players, HashMap<int, Player> &hash_players) {
     vector <int>ids = tst_players.searchPrefix(player);
-    for(auto& id_player: ids){
-        Player player_with_prefix = hash_players.get(id_player);
-        _print_player(id_player, player_with_prefix);
+    if(ids.size() == 0) {
+        cout << "Player not found!\n";
+    } else {
+        cout << endl;
+        _print_player_header();
+        for(auto& id_player: ids){
+            Player player_with_prefix = hash_players.get(id_player);
+            _print_player(id_player, player_with_prefix);
+        }
     }
     cout << endl;
 }
@@ -59,19 +82,31 @@ void search_user(int user_id, HashMap<int, HeapMin> &hash_users, HashMap<int, Pl
     while(!user_top20.empty()){
         review_top20.insert(review_top20.begin(),user_top20.pop());
     }
-    for (auto player_review : review_top20){
-        Player player = hash_players.get(player_review.id);
-        _print_user_review(player_review, player);
+    if(review_top20.size() == 0) {
+        cout << "User not found!\n";
+    } else {
+        cout << endl;
+        _print_user_header();
+        for (auto player_review : review_top20){
+            Player player = hash_players.get(player_review.id);
+            _print_user_review(player_review, player);
+        }
     }
     cout << endl;
 }
 
 void search_top_n(int n_players, string position, vector<Review> &top_players, HashMap<int, Player> &hash_players) {
+    bool first = true;
     for(Review review : top_players) {
         if(n_players == 0) break;
         Player curr_player = hash_players.get(review.id);
         for(string curr_pos : curr_player.positions) {
             if(curr_pos == position) {
+                if(first) {
+                    cout << endl;
+                    _print_player_header();
+                    first = false;
+                }
                 _print_player(review.id, curr_player);
                 n_players--;
                 break;
@@ -104,6 +139,7 @@ void search_tags(vector<string> &tags, HashMap<string, HashMap<int, int>> &hash_
         return;
     }
     bool intersection_empty = true;
+    bool first = true;
     for(auto it = (*min_hash).begin(); it != (*min_hash).end(); ++it) {
         bool in_intersection = true;
         for(string tag : tags) {
@@ -115,6 +151,11 @@ void search_tags(vector<string> &tags, HashMap<string, HashMap<int, int>> &hash_
         }
         if(in_intersection) {
             intersection_empty = false;
+            if(first) {
+                cout << endl;
+                _print_player_header();
+                first = false;
+            }
             _print_player((*it).key, hash_players.get((*it).key));
         }
     }

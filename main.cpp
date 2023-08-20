@@ -3,6 +3,7 @@
 #include <string>
 #include <cstring>
 #include <sstream>
+#include <chrono>
 
 #include "./includes/trie.hpp"
 #include "./includes/hash.hpp"
@@ -21,6 +22,8 @@ int main() {
     // CONSTRUINDO AS ESTRUTURAS NECESSÁRIAS:
     // Colocar aqui todas as estruturas que devem ser geradas no início
 
+    chrono::steady_clock::time_point begin = chrono::steady_clock::now();
+
     Tst tst_players;                                     // TST com o nome dos jogadores
     HashMap<int, Player> hash_players;                   // HashMap id_jogador -> jogadores
     HashMap<int, HeapMin> hash_users;                    // HashMap id_usuário -> 20 melhores jogadores
@@ -32,7 +35,10 @@ int main() {
     build_top_players(top_players, hash_players);
     build_hash_tags(hash_tags);
 
+    chrono::steady_clock::time_point end = chrono::steady_clock::now();
+
     cout << "Build phase done!\n";
+    cout << "Elapsed time: " << chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count()/(long double)1e9 << " seconds" << endl;
 
     // FAZENDO AS CONSULTAS NECESSÁRIAS:
 
@@ -57,7 +63,12 @@ int main() {
             int user_id;
             cin >> user_id;
 
-            search_user(user_id, hash_users, hash_players);
+            if(user_id < 0) {
+                cout << "Invalid user id!\n\n";
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            } else {
+                search_user(user_id, hash_users, hash_players);
+            }
 
         } else if(query_type.substr(0, 3) == "top") {
 
@@ -97,6 +108,7 @@ int main() {
             make_query = false;
         } else {
             cout << "Invalid query!\n\n";
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
 
     }

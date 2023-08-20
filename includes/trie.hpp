@@ -52,19 +52,18 @@ class Tst{
 
         TstNode* getLastLetterNode(TstNode *node, string name, int indexOfLetter, int sizeName){
 
-            if(name[indexOfLetter] == node->letter && indexOfLetter + 1 != sizeName)
-                node = getLastLetterNode(node->nextNode, name, indexOfLetter + 1, sizeName);
+            if(indexOfLetter + 1 == sizeName) return node;
+            
+            if(node->nextNode != nullptr && name[indexOfLetter] == node->letter)
+                return getLastLetterNode(node->nextNode, name, indexOfLetter + 1, sizeName);
 
-            else if(node->letter < name[indexOfLetter] && node->rightNode != nullptr)
-                node = getLastLetterNode(node->rightNode, name, indexOfLetter, sizeName);
+            else if(node->rightNode != nullptr && node->letter < name[indexOfLetter])
+                return getLastLetterNode(node->rightNode, name, indexOfLetter, sizeName);
 
-            else if (node->letter > name[indexOfLetter] &&node->leftNode != nullptr)
-               node = getLastLetterNode(node->leftNode, name, indexOfLetter, sizeName);
+            else if (node->leftNode != nullptr && node->letter > name[indexOfLetter])
+                return getLastLetterNode(node->leftNode, name, indexOfLetter, sizeName);
 
-            else if(indexOfLetter + 1 != sizeName)
-                node = nullptr;
-
-            return node;
+            return nullptr;
         }
 
         vector<int> getIdsPlayers(TstNode *node,string name){
@@ -74,12 +73,12 @@ class Tst{
         }
 
         void getIdsPlayersRecursion(TstNode *node, string name, vector<int>* idReturn){
+            if(node->leftNode != nullptr)
+                getIdsPlayersRecursion(node->leftNode, name, idReturn);
             if(node->nextNode != nullptr)
                 getIdsPlayersRecursion(node->nextNode, name + node->letter, idReturn);
             if(node->rightNode != nullptr)
                 getIdsPlayersRecursion(node->rightNode, name, idReturn);
-            if(node->leftNode != nullptr)
-                getIdsPlayersRecursion(node->leftNode, name, idReturn);
 
 
             if(!node->idPlayer.empty()){
@@ -95,7 +94,7 @@ class Tst{
 
         vector<int> searchPrefix(string name){
             TstNode* node;
-            vector<int> idReturn;
+            vector<int> idReturn(0);
 
             std::transform(name.begin(), name.end(), name.begin(), ::tolower);
 
