@@ -119,30 +119,9 @@ public:
     Iterator end() {
         return Iterator(table.end(), typename vector<HashNode<K, V>>::iterator(), *this);
     }
-    // Experimental: returns the iterator pointing to the last empty bucket 
-    // (from .end() to .beg()). This would prevent the searches to happen
-    // in empty buckets that come after the last non-empty bucket.
-    Iterator fast_end() {
-        typename vector<vector<HashNode<K, V>>>::iterator outer = table.end()-1;
-        // Begins the search at the last element
-        do {
-            // If the current hash list is empty, goes to the one prior
-            if(outer->empty()) {
-                if(outer != table.begin()) {
-                    --outer;
-                }
-            } else break;
-        } while(outer != table.begin());
-        // Note: the .end() iter points to the first element thats out of
-        // the scope of the container
-        if(outer != table.begin() || !outer->empty()) ++outer;
-        if(outer == table.end()) return Iterator(outer, typename vector<HashNode<K, V>>::iterator(), *this);
-        else return Iterator(outer, outer->begin(), *this);
-    }
     bool empty() {
         return this->begin() == this->end();
     }
-
     size_t size() {
         return n_elements;
     }
