@@ -21,25 +21,3 @@ Trabalho final da disciplina: "Classificação e Pesquisa de Dados" <br>
   - É escolhida a tabela de menor tamanho como resposta inicial. É verificado, então, se cada elemento dessa tabela está nas outras tags da busca. Se não estiver, ele é retirado da resposta.
   </li>
 </ol>
-
-## Structs utilizadas nas estruturas de dados
-
-<li>Struct dos jogadores (nodo da Hash de jogadores): <br></li>
-
-```cpp
-  typedef struct player_struct {
-    int id;
-    string name;
-    unsigned long long n_reviews, sum_reviews;
-  } Player;
-```
-
-<li>Struct dos reviews (nodo do Heap): <br></li>
-
-```cpp
-  typedef struct review_struct {
-    int id;
-    int review;
-  } Review;
-```
-
