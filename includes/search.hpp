@@ -3,33 +3,53 @@
 
 #include <iostream>
 #include <vector>
+#include <iomanip>
+#include <string.h>
 #include "./trie.hpp"
 #include "./hash.hpp"
 #include "./heap.hpp"
 
+const char SEP = ' ';
+const int IDW = 6;
+const int NAMEW = 46;
+const int POSW = 16;
+const int RATW = 10;
+const int CNTW = 8;
+const int USRW = 6;
+
+void setWidth(int width) {
+    cout << right << setw(width) << setfill(SEP);
+}
 
 void _print_player(int id, Player p) {
-    cout << id << ", " << p.name << ", ";
-    for(string pos : p.positions) {
-        cout << pos << ", ";
-    }
-    cout << (float)p.sum_reviews_x2/(2*p.n_reviews) << ", " << p.n_reviews << endl;
+    setWidth(IDW); cout << id;
+    setWidth(NAMEW); cout << p.name;
+    string concat = "";
+    for(string pos : p.positions) concat += pos + ", ";
+    concat = concat.substr(0, concat.length()-2);
+    setWidth(POSW); cout << concat;
+    setWidth(RATW); cout << (float)p.sum_reviews_x2/(2*p.n_reviews);
+    setWidth(CNTW); cout << p.n_reviews << endl;
 }
 
 void _print_user_review(Review user_review, Player p) {
-    cout << user_review.id << ", " << p.name << ", ";
-    cout << (float)p.sum_reviews_x2/(2*p.n_reviews) << ", " << p.n_reviews << ", " << user_review.review << endl;
+    setWidth(IDW); cout << user_review.id;
+    setWidth(NAMEW); cout << p.name;
+    setWidth(RATW); cout << (float)p.sum_reviews_x2/(2*p.n_reviews);
+    setWidth(CNTW); cout << p.n_reviews;
+    char review_3_digits[4];
+    sprintf(review_3_digits, "%.1f", user_review.review);
+    setWidth(USRW); cout << review_3_digits << endl;
 }
 
 
 void search_player(string player, Tst &tst_players, HashMap<int, Player> &hash_players) {
-     vector <int>ids = tst_players.searchPrefix(player);
-
+    vector <int>ids = tst_players.searchPrefix(player);
     for(auto& id_player: ids){
         Player player_with_prefix = hash_players.get(id_player);
         _print_player(id_player, player_with_prefix);
     }
-
+    cout << endl;
 }
 
 void search_user(int user_id, HashMap<int, HeapMin> &hash_users, HashMap<int, Player> hash_players) {
@@ -42,8 +62,8 @@ void search_user(int user_id, HashMap<int, HeapMin> &hash_users, HashMap<int, Pl
     for (auto player_review : review_top20){
         Player player = hash_players.get(player_review.id);
         _print_user_review(player_review, player);
-
     }
+    cout << endl;
 }
 
 void search_top_n(int n_players, string position, vector<Review> &top_players, HashMap<int, Player> &hash_players) {
