@@ -59,7 +59,12 @@ class HeapMin{
             return ranking.size();
         }
 
-        HeapMin(int maxSize): ranking(), maxSize(maxSize){}
+        HeapMin& limit_size(int max_size){
+            maxSize = max_size;
+            return *this;
+
+        }
+
         HeapMin(): ranking(), maxSize(UNLIMITEDSIZE) {}
 
     private:

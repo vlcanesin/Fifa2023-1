@@ -58,7 +58,7 @@ class Tst{
             else if(node->letter < name[indexOfLetter] && node->rightNode != nullptr)
                 node = getLastLetterNode(node->rightNode, name, indexOfLetter, sizeName);
 
-            else if (node->leftNode != nullptr)
+            else if (node->letter > name[indexOfLetter] &&node->leftNode != nullptr)
                node = getLastLetterNode(node->leftNode, name, indexOfLetter, sizeName);
 
             else if(indexOfLetter + 1 != sizeName)

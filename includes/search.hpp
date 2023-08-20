@@ -16,6 +16,11 @@ void _print_player(int id, Player p) {
     cout << (float)p.sum_reviews_x2/(2*p.n_reviews) << ", " << p.n_reviews << endl;
 }
 
+void _print_user_review(Review user_review, Player p) {
+    cout << user_review.id << ", " << p.name << ", ";
+    cout << (float)p.sum_reviews_x2/(2*p.n_reviews) << ", " << p.n_reviews << ", " << user_review.review << endl;
+}
+
 
 void search_player(string player, Tst &tst_players, HashMap<int, Player> &hash_players) {
      vector <int>ids = tst_players.searchPrefix(player);
@@ -29,8 +34,16 @@ void search_player(string player, Tst &tst_players, HashMap<int, Player> &hash_p
 
 void search_user(int user_id, HashMap<int, HeapMin> &hash_users, HashMap<int, Player> hash_players) {
     HeapMin user_top20 = hash_users.get(user_id);
-    cout << user_id << endl;
-    user_top20.print();
+    Review found_review;
+    vector<Review> review_top20;
+    while(!user_top20.empty()){
+        review_top20.insert(review_top20.begin(),user_top20.pop());
+    }
+    for (auto player_review : review_top20){
+        Player player = hash_players.get(player_review.id);
+        _print_user_review(player_review, player);
+
+    }
 }
 
 void search_top_n(int n_players, string position, vector<Review> &top_players, HashMap<int, Player> &hash_players) {

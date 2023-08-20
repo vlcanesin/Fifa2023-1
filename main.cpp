@@ -28,8 +28,7 @@ int main() {
     HashMap<string, HashMap<int, int>> hash_tags;        // HashMap tag -> (HashMap id_jogador -> id_jogador)
 
     build_tst_players(tst_players);
-    build_hash_players(hash_players);
-    build_hash_users(hash_users);
+    build_hash_player_users(hash_players, hash_users);
     build_top_players(top_players, hash_players);
     build_hash_tags(hash_tags);
 

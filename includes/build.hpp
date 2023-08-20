@@ -11,30 +11,27 @@
 
 using namespace std;
 
-void build_tst_players(Tst &tst_players) {
-    io::CSVReader<2, io::trim_chars<' ', '\t'>, io::double_quote_escape<',', '"'>> doc_players("./../INF01124_FIFA21_clean/players.csv");
+void build_hash_player_users(HashMap<int, Player> &hash_players, HashMap<int, HeapMin> &hash_users){
 
-    doc_players.read_header(io::ignore_extra_column, "sofifa_id", "name");
-    int id;
-    string name;
+    io::CSVReader<3, io::trim_chars<' ', '\t'>, io::double_quote_escape<',', '"'>> doc_reviews("./../INF01124_FIFA21_clean/rating.csv");
 
-      while(doc_players.read_row(id, name)){
-        tst_players.insertName(name, id);
-    }
-}
+    doc_reviews.read_header(io::ignore_extra_column, "user_id","sofifa_id", "rating");
 
-void build_hash_players(HashMap<int, Player> &hash_players) {
-
-    io::CSVReader<2, io::trim_chars<' ', '\t'>, io::double_quote_escape<',', '"'>> doc_reviews("./../INF01124_FIFA21_clean/rating.csv");
-
-    doc_reviews.read_header(io::ignore_extra_column, "sofifa_id", "rating");
-
-    int id;
+    int player_id, user_id;
     float rating;
-    while(doc_reviews.read_row(id, rating)){
-        Player *player_pointer = &hash_players.get(id);
+    while(doc_reviews.read_row(user_id, player_id, rating)){
+        // Hash Players build
+        Player *player_pointer = &hash_players.get(player_id);
         player_pointer->n_reviews++;
         player_pointer->sum_reviews_x2 += (int)(2*rating);
+
+        // Hash USers Build
+        HeapMin *heap_user_pointer = &(hash_users.get(user_id)).limit_size(20);
+        Review user_review;
+
+        user_review.id = player_id;
+        user_review.review = rating;
+        (*heap_user_pointer).push(user_review);
     }
 
     io::CSVReader<3, io::trim_chars<' ', '\t'>, io::double_quote_escape<',', '"'>> doc_players("./../INF01124_FIFA21_clean/players.csv");
@@ -43,8 +40,8 @@ void build_hash_players(HashMap<int, Player> &hash_players) {
 
     string name;
     string s_positions;
-    while(doc_players.read_row(id, name, s_positions)){
-        Player *player_pointer = &hash_players.get(id);
+    while(doc_players.read_row(player_id, name, s_positions)){
+        Player *player_pointer = &hash_players.get(player_id);
         (*player_pointer).name = name;
         s_positions += ", "; // delimiter
         string position_to_insert = "";
@@ -58,11 +55,18 @@ void build_hash_players(HashMap<int, Player> &hash_players) {
             }
         }
     }
-
 }
 
-void build_hash_users(HashMap<int, HeapMin> &hash_users) {
+void build_tst_players(Tst &tst_players) {
+    io::CSVReader<2, io::trim_chars<' ', '\t'>, io::double_quote_escape<',', '"'>> doc_players("./../INF01124_FIFA21_clean/players.csv");
 
+    doc_players.read_header(io::ignore_extra_column, "sofifa_id", "name");
+    int id;
+    string name;
+
+      while(doc_players.read_row(id, name)){
+        tst_players.insertName(name, id);
+    }
 }
 
 void build_top_players(vector<Review> &top_players, HashMap<int, Player> &hash_players ) {
