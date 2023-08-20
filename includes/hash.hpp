@@ -62,8 +62,17 @@ private:
     size_t table_size;
     size_t n_elements;
 
+    void resize_table() {
+        HashMap<K, V> newtable(4*table_size);
+        for(auto it = (*this).begin(); it != (*this).end(); ++it) {
+            newtable.get((*it).key) = (*it).value;
+        }
+        this->table = newtable.table;
+        table_size = 4*table_size;
+    }
+
 public:
-    HashMap() : table_size(100), table(100, vector<HashNode<K, V>>()), n_elements(0) {}  // default: hash for the tags
+    HashMap() : table_size(97), table(97, vector<HashNode<K, V>>()), n_elements(0) {}  // default: hash for the tags
     HashMap(size_t initial_size) : table_size(initial_size), table(initial_size, vector<HashNode<K, V>>()), n_elements(0) {}
 
     class Iterator {
@@ -129,6 +138,7 @@ public:
     // This function returns a reference to a node of the HashTable given its id
     // If the node is not present, then an empty element of type V is inserted in the table
     V& get(K &key_to_find) {
+        if(n_elements >= table_size) resize_table();
         size_t hashed_id = hasher(key_to_find, table_size);
         for(HashNode<K, V> &curr_node : table[hashed_id]) {
             if(key_to_find == curr_node.key) {

@@ -25,7 +25,7 @@ void build_tst_players(Tst &tst_players) {
 
 void build_hash_players(HashMap<int, Player> &hash_players) {
 
-    io::CSVReader<2, io::trim_chars<' ', '\t'>, io::double_quote_escape<',', '"'>> doc_reviews("./../INF01124_FIFA21_clean/minirating.csv");
+    io::CSVReader<2, io::trim_chars<' ', '\t'>, io::double_quote_escape<',', '"'>> doc_reviews("./../INF01124_FIFA21_clean/rating.csv");
 
     doc_reviews.read_header(io::ignore_extra_column, "sofifa_id", "rating");
 

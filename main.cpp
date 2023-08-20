@@ -22,10 +22,10 @@ int main() {
     // Colocar aqui todas as estruturas que devem ser geradas no início
 
     Tst tst_players;                                     // TST com o nome dos jogadores
-    HashMap<int, Player> hash_players(10000);            // HashMap id_jogador -> jogadores
+    HashMap<int, Player> hash_players;                   // HashMap id_jogador -> jogadores
     HashMap<int, HeapMin> hash_users;                    // HashMap id_usuário -> 20 melhores jogadores
     vector<Review> top_players;                          // vector ordenado de jogadores de +1000 reviews
-    HashMap<string, HashMap<int, int>> hash_tags(1000);  // HashMap tag -> (HashMap id_jogador -> id_jogador)
+    HashMap<string, HashMap<int, int>> hash_tags;        // HashMap tag -> (HashMap id_jogador -> id_jogador)
 
     build_tst_players(tst_players);
     build_hash_players(hash_players);
